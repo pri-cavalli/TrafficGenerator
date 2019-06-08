@@ -1,4 +1,5 @@
 import socket
+import threading
 import Constants
 
 class Server:
@@ -11,9 +12,8 @@ class Server:
 
     def start(self):
         while True:
-            print('Received {} bytes from host {}')
             data, address = self.socket.recvfrom(Constants.UDP_DEFAULT_BUFFER_SIZE)
-            print('Received {} bytes from host {}'.format(len(data), address))
+            print("Recebeu",len(data))
             
 
     def getOwnIpAdress(self):
