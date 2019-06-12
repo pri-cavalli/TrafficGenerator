@@ -11,17 +11,35 @@ class Client:
         self.rate = math.ceil(args.r * 1000 / 8)
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.packetsPerSecond = math.ceil(self.rate / Constants.UDP_DEFAULT_BUFFER_SIZE)
-        self.lastPacketLength = self.rate - ((self.packetsPerSecond - 1) * Constants.UDP_DEFAULT_BUFFER_SIZE)
-        
+        self.lastMessageLength = self.rate - ((self.packetsPerSecond - 1) * Constants.UDP_DEFAULT_BUFFER_SIZE)
+
+        self.message = bytearray(Constants.UDP_DEFAULT_BUFFER_SIZE)
+        self.lastMessage = bytearray(self.lastMessageLength)
 
     def start(self):
-        timeToWait = 1 / self.packetsPerSecond
+        rateInMbitsPerSecond = self.rate * 8 / 1000000
+        print("Enviarei", self.packetsPerSecond, "pacotes por segundo")
         while True:
-            for _ in range(self.packetsPerSecond - 1):
-                self.socket.sendto(bytearray(Constants.UDP_DEFAULT_BUFFER_SIZE), (self.ip, self.port))
-                print("Enviou", Constants.UDP_DEFAULT_BUFFER_SIZE, "bytes")
+            timeToWait = 1.0 / float(self.packetsPerSecond)
+            remainSecond = 1.0
+
+            for packet in range(0, self.packetsPerSecond):
+                timeBegin = time.time()
+                
+                self.socket.sendto(self.message, (self.ip, self.port))
                 time.sleep(timeToWait)
-            if self.lastPacketLength != 0:
-                self.socket.sendto(bytearray(self.lastPacketLength), (self.ip, self.port))
-                print("Enviou", self.lastPacketLength, "bytes")
+
+                remainPackets = self.packetsPerSecond - packet
+                if remainSecond > 0:
+                    timeToWait = remainSecond / float(remainPackets)
+                else:
+                    timeToWait = 0.0
+
+                timeEnd = time.time()
+                remainSecond -= timeEnd - timeBegin 
+
+            if self.lastMessageLength != 0:
+                self.socket.sendto(self.lastMessage, (self.ip, self.port))
                 time.sleep(timeToWait)
+
+            print("Enviou", rateInMbitsPerSecond, "Mbit/s")
