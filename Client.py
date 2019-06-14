@@ -13,8 +13,8 @@ class Client:
         self.packetsPerSecond = math.ceil(self.rate / Constants.UDP_DEFAULT_BUFFER_SIZE)
         self.lastMessageLength = self.rate - ((self.packetsPerSecond - 1) * Constants.UDP_DEFAULT_BUFFER_SIZE)
 
-        self.message = bytearray(Constants.UDP_DEFAULT_BUFFER_SIZE)
-        self.lastMessage = bytearray(self.lastMessageLength)
+        self.message = bytearray(Constants.UDP_DEFAULT_BUFFER_SIZE - Constants.HEADER_SIZE)
+        self.lastMessage = bytearray(self.lastMessageLength - Constants.HEADER_SIZE)
 
     def start(self):
         rateInMbitsPerSecond = self.rate * 8 / 1000000

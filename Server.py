@@ -13,7 +13,7 @@ class Server:
     def start(self):
         while True:
             data, address = self.socket.recvfrom(Constants.UDP_DEFAULT_BUFFER_SIZE)
-            print("Recebeu",len(data))
+            print("Recebeu",len(data)+ Constants.HEADER_SIZE)
             
 
     def getOwnIpAdress(self):
